@@ -1,0 +1,16 @@
+{
+    "contents" : "#setwd(\"C:/Users/mcdaniel/Documents/SPORTIF/AnalChap\")\n#load(\"../sportif.RData\")\nload(\"sportif.RData\")\ndat <- subset(sportif, study==\"SH-TPA-0003\")\n#attach(dat)\n\nendtime <- 900/365\n\ncentime <- endtime + 0.000001\n\n\n\ntime <- pmin(dat$primaryd/365, dat$sensit2d/365, dat$evmbleed/365, dat$evminor/365)\n\n\n\ntreat <- factor(dat$RANDCODE)\n\ntr <- rep(0, length(treat))\ntr[treat==levels(treat)[1]] <- 1\n\nevent <- pmax(dat$PRIMARY, dat$SENSIT2, dat$major, dat$minor)\n\n\n\n\nload(\"hazards.RData\")\n\n#mhE <- muhaz(time[tr==1], event[tr==1], max.time=2)\n#mhC <- muhaz(time[tr==0], event[tr==0], max.time=2)\n\nshift <- 0\n\n#mhC <- controlhaz\n#mhE <- treathaz\n\ncanno <- c(1703, 1472, 1383, 1090, 838)\neanno <- c(1704, 1468, 1373, 1109, 869)\ncev <- c(0, 399, 148, 71, 13)\neev <- c(0, 353, 125, 63, 14)\n\npldf2 <- data.frame(haz = c(mhC$haz.est, mhE$haz.est), grid = c(mhC$est.grid, mhE$est.grid), Group=c(rep(\"Control\", 101), rep(\"Experimental\", 101)))\npl <- ggplot(data=pldf2) + stat_smooth(aes(x=grid, y=haz, linetype=Group, color=Group), size=1.2, se=FALSE)  #+ geom_line(aes(x=pldf2$grid, y=rep(lamhat0, length(pldf2$grid))), color=\"red\")\n#pl <- pl + geom_line(aes(x=pldf2$grid, y=rep(ucl0, length(pldf2$grid))), linetype=2, color=\"red\") + geom_line(aes(x=pldf2$grid, y=rep(lcl0, length(pldf2$grid))), linetype=2, color=\"red\")\n#pl <- pl + geom_line(aes(x=pldf2$grid, y=rep(ucl1, length(pldf2$grid))), linetype=2, color=\"blue\") + geom_line(aes(x=pldf2$grid, y=rep(lcl1, length(pldf2$grid))), linetype=2, color=\"blue\")\n#pl <- pl + geom_line(aes(x=pldf2$grid, y=rep(lamhat1, length(pldf2$grid))), linetype=1, color=\"blue\")\npl <- pl + theme_bw() + ylab(\"Hazard Estimate (events/year)\") + xlab(\"Time (years)\")+scale_color_manual(values=c(\"red\", \"blue\"))\npl <- pl + annotate(\"text\", x=-0.09, y=1.01+shift, label=\"Number At Risk\", hjust=0, vjust=0.5)\npl <- pl + annotate(\"text\", x=c(0, 0.5, 1, 1.5, 2), y=0.98+shift, label=canno, hjust=0.5, vjust=0.5, color=\"red\")\npl <- pl + annotate(\"text\", x=c(0, 0.5, 1, 1.5, 2), y=0.95+shift, label=eanno, hjust=0.5, vjust=0.5, color=\"blue\")\npl <- pl + annotate(\"text\", x=-0.09, y=0.90+shift, label=\"Events in Past 0.5 Years\", hjust=0, vjust=0.5)\npl <- pl + annotate(\"text\", x=c(0, 0.5, 1, 1.5, 2), y=0.87+shift, label=cev, hjust=0.5, vjust=0.5, color=\"red\")\npl <- pl + annotate(\"text\", x=c(0, 0.5, 1, 1.5, 2), y=0.84+shift, label=eev, hjust=0.5, vjust=0.5, color=\"blue\")\npl <- pl + annotate(\"text\", x=c(-0.06, -0.03), y=c(0.95, 0.84), label=\"E:\", hjust=0.5, vjust=0.5, color=\"blue\")\npl <- pl + annotate(\"text\", x=c(-0.06, -0.03), y=c(0.98, 0.87), label=\"C:\", hjust=0.5, vjust=0.5, color=\"red\")\n#pl <- pl + scale_color_manual(values=c(\"red\", \"blue\")) + opts(legend.position=\"bottom\")\npl\n\n\n\npdf(\"anybadsplit.pdf\")\npl\ndev.off()\n#save(file=\"allhaz.RData\", list=c(\"mh\"))",
+    "created" : 1443466187527.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2967857823",
+    "id" : "9452FD67",
+    "lastKnownWriteTime" : 1443043074,
+    "path" : "C:/Users/lmcda4/Dropbox/RevisedCT/Accepted/Figures/sportif/anybadhaz.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

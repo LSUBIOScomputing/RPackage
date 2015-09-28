@@ -1,0 +1,16 @@
+{
+    "contents" : "setwd(\"C:/Users/mcdaniel/Documents/SPORTIF/AnalChap\")\ndat <- subset(sportif, study==\"SH-TPA-0003\")\n#attach(dat)\n\nendtime <- 900/365\n\ncentime <- endtime + 0.000001\n\n\n\ntime <- pmin(dat$primaryd/365, dat$sensit2d/365, dat$evmbleed/365, dat$evminor/365, dat$ittdays/365)\n\n\n\ntreat <- factor(dat$RANDCODE)\n\ntr <- rep(0, length(treat))\ntr[treat==levels(treat)[1]] <- 1\n\nevent <- pmax(dat$PRIMARY, dat$SENSIT2, dat$major, dat$minor)\n\nlibrary(survival)\n\ndeltavec <- seq(from=-0.06, to=-0.04, length.out=1001)\nscorestat <- rep(0, length(deltavec))\nfor(i in 1:length(deltavec)){\n  \n  delta <- deltavec[i]\n\n  \n  \n  \n  n1 <- sum(tr)\n  n0 <- length(tr)-n1\n  n <- n1+n0\n  \n  biglist <- data.frame(obs = time + runif(n, 0, 0.001), event = event, treat = tr)\n  sortlist <- biglist[order(biglist$obs),]\n  Zbar <- (n1 - cumsum(sortlist$treat))/((n0+n1)-(0:(n0+n1-1)))\n  \n  Y <- (n0+n1):1\n  Y1 <- n1 - cumsum(sortlist$treat)\n  Y0 <- n0- cumsum(1-sortlist$treat)\n  Yfunc <- Y1*Y0/Y\n  score <- crossprod(sortlist$treat-Zbar, sortlist$event)\n  \n  offset.function <- (1-Zbar)*Y1\n  \n  \n  deloffset<- delta*sum((sortlist$obs[1:n] - c(0,sortlist$obs[1:(n-1)]))*(offset.function[1:n]))\n  \n  score <- score - deloffset\n  \n  Ydiff <- Y0 - Y1\n  \n  lY0 <- c(n0, Y0)\n  lY1 <- c(n1, Y1)\n  lY <- c(n, Y)\n  \n  vhat <- crossprod((Y0*Y1)/(Y^2) , sortlist$event) + crossprod((lY0[1:n]*lY1[1:n]/lY[1:n]^2), delta*(sortlist$obs[1:n] - c(0,sortlist$obs[1:(n-1)]))*(Ydiff[1:n]))\n  \n  scorestat[i] <- score/sqrt(vhat)\n}\n\n\nsumX0 <- sum(time[tr==0])\nsumX1 <- sum(time[tr==1])\nsumevent0 <- sum(event[tr==0])\nsumevent1 <- sum(event[tr==1])\n\nlamhat1 <- sumevent1/sumX1\nlamhat0 <- sumevent0/sumX0\nev0 <- sumevent0\nev1 <- sumevent1\n\nexpstat <- (lamhat1 - lamhat0 -delta)/sqrt((lamhat1^2)/ev1 + (lamhat0^2)/ev0)\n\nlamhat1 - lamhat0\n# Exp Point Estimate: -0.048\n\nlamhat1-lamhat0 + qnorm(0.975)*sqrt((lamhat1^2)/ev1 + (lamhat0^2)/ev0)\n# -0.00905\n\ndeltavec[which.max(scorestat < 0)]\n# Point Estimate: -0.043\n\ndeltavec[which.max(scorestat < -qnorm(0.975))]\n# -0.00585\nsqrt(lam^2/(ev0+ev1))\n\nlam <- (sumevent0+sumevent1)/(sumX0 + sumX1)\nlam\n# 0.3315381\n\nsqrt(lam^2/(ev0+ev1))\n# 0.0096108\n\nmean(event)\n# 0.34928\n",
+    "created" : 1443467278611.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1665612730",
+    "id" : "1B463C48",
+    "lastKnownWriteTime" : 1406401677,
+    "path" : "C:/Users/lmcda4/Dropbox/Thesis/AnalChap/SPORTIF/RCodeJuly23/anybad.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
